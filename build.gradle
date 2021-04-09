@@ -30,6 +30,11 @@ allprojects {
         maven{ url 'https://maven.aliyun.com/repository/public'}
 
         maven{ url 'https://maven.aliyun.com/repository/jcenter'}
+
+        maven {
+            url 'https://esri.jfrog.io/artifactory/arcgis'
+        }
+
         google()
         jcenter()
     }
