@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private val mapView:MapView by lazy {
+    private val mapView: MapView by lazy {
         activityMainBinding.mapView
     }
 
@@ -23,15 +23,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(activityMainBinding.root)
 
-        setupMap()
+        setupMap(BasemapStyle.ARCGIS_NOVA)
     }
 
-    private fun setupMap(){
-        ArcGISRuntimeEnvironment.setApiKey("AAPK02af9b9cdd3242039c7a0c5b39d39aabE8Qx-D6ZBpXN0wwJETrkfxA5m8rUtl6pE-X1kYupfxLNsb8_UgT4NevdrmQYIaSx")
-
-        val map = ArcGISMap(BasemapStyle.ARCGIS_TOPOGRAPHIC)
+    private fun setupMap(arcgisNova: BasemapStyle) {
+        val map = ArcGISMap(arcgisNova)
         mapView.map = map
-        mapView.setViewpoint(Viewpoint(118.79647, 32.05838, 72000.0))
+        mapView.setViewpoint(Viewpoint(36.63452830082989, 114.85786988403322, 72000.0))
     }
 
     override fun onPause() {
