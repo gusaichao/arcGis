@@ -31,6 +31,7 @@ allprojects {
 
         maven{ url 'https://maven.aliyun.com/repository/jcenter'}
 
+        maven { url "http://mvn.gisinfo.com:10081/repository/maven-android" }
         maven {
             url 'https://esri.jfrog.io/artifactory/arcgis'
         }

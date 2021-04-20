@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,6 +9,115 @@
     <com.esri.arcgisruntime.mapping.view.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/tv_building"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dip_52"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:gravity="center"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="当前正在创建"
+        android:background="@drawable/ic_map_tool_bg"
+        android:textColor="@color/black"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/tv_storage"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dip_52"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp"
+        android:layout_alignTop="@id/image_location"
+        android:layout_alignBottom="@id/image_location"
+        android:text="保存采集"
+        android:background="@drawable/bg_shape_radio_25"
+        android:textColor="@color/white"
+        android:textSize="15sp" />
+
+    <ImageView
+        android:id="@+id/image_location"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/ic_map_tool_bg"
+        android:padding="10dp"
+        android:src="@mipmap/ic_map_tool_gps" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/image_zhinanzhen"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/ic_map_tool_bg"
+            android:padding="10dp"
+            android:src="@mipmap/ic_zhinanzhen" />
+
+        <Button
+            android:id="@+id/btn_close"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/ic_map_tool_bg"
+            android:text="关闭创建"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+        <Button
+            android:id="@+id/btn_dian"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/ic_map_tool_bg"
+            android:text="点"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_20" />
+
+        <Button
+            android:id="@+id/btn_xian"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/ic_map_tool_bg"
+            android:text="线"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_20" />
+
+        <Button
+            android:id="@+id/btn_mian"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/ic_map_tool_bg"
+            android:text="面"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_20" />
+        <Button
+            android:id="@+id/btn_data"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/ic_map_tool_bg"
+            android:text="数据"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_20" />
+
+    </LinearLayout>
+</RelativeLayout>

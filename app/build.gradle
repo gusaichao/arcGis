@@ -46,4 +46,10 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.esri.arcgisruntime:arcgis-android:100.10.0'
+
+    implementation 'com.gisinfo.android.core:gaode:1.0.0'
+    implementation 'com.gisinfo.android.core:esri:1.0.0'
+
+    implementation 'com.gisinfo.android.lib:base:1.0.0'
+    implementation 'com.gisinfo.android.lib:widget:1.0.0'
 }
