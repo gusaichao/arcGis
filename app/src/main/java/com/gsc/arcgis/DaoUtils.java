@@ -45,6 +45,7 @@ public class DaoUtils {
     }
 
     public List<DataBean> select() {
+        SystemClock.sleep(1000);
         List<DataBean> list = new ArrayList<>();
         SQLiteDatabase db = sqliteDbHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from black_num order by id desc ", null);
@@ -61,7 +62,6 @@ public class DaoUtils {
             list.add(dataBean);
         }
         cursor.close();
-        SystemClock.sleep(1000);
         return list;
     }
 

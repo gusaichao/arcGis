@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
+import com.esri.arcgisruntime.geometry.Geometry
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.PolygonBuilder
 import com.esri.arcgisruntime.geometry.PolylineBuilder
@@ -77,6 +78,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         binding.mapView.isAttributionTextVisible = false
         mapHelper = MapHelper(binding.mapView) {
+            refreshcollect()
         }
         val locationDisplay = locationDisplay
         locationDisplay?.isShowLocation = true
@@ -85,6 +87,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         locationDisplay?.autoPanMode = LocationDisplay.AutoPanMode.RECENTER
 
         // 动态权限申请
+
         checkPermission(
             object : OnCheckPermissionListener {
                 override fun permissionDenied() {
@@ -104,30 +107,58 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
-        binding.imageLocation.setOnClickListener {
-            locationDisplay?.startAsync()
-            initListener()
-        }
-
         binding.mapView.addLayerViewStateChangedListener {
             locationDisplay?.startAsync()
             initListener()
         }
 
-        binding.imageZhinanzhen.setOnClickListener {
-            binding.mapView.setViewpointRotationAsync(0.0)
-        }
+        binding.imageLocation.setOnClickListener(this)
+        binding.imageZhinanzhen.setOnClickListener(this)
         binding.btnClose.setOnClickListener(this)
         binding.btnDian.setOnClickListener(this)
         binding.btnXian.setOnClickListener(this)
         binding.btnMian.setOnClickListener(this)
         binding.tvStorage.setOnClickListener(this)
         binding.btnData.setOnClickListener(this)
+        binding.btnRefresh.setOnClickListener(this)
 
-        fillData()
     }
 
-    fun fillData() {
+    private var dataList = arrayListOf<DataBean>()
+
+    fun refreshcollect() {
+        val overlay = mapHelper.overlayHelper.createOrFindOverlay(OVERLAY_NAME_COLLECT)
+        overlay.graphics.clear()
+        val list = daoUtils.select()
+        dataList.clear()
+        dataList.addAll(list)
+
+        val simpleMarkerSymbol =
+            SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 15f)
+
+        val simpleLineSymbol =
+            SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 5f)
+
+        val symbol = SimpleFillSymbol(
+            SimpleFillSymbol.Style.SOLID,
+            Color.RED and 0x30FFFFFF,
+            SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED and 0x72FFFFFF, 2f)
+        )
+
+        var graphic = arrayListOf<Graphic>()
+        dataList.forEach {
+            if (it.point != null && !"".equals(it.point)){
+                val fromJson = Geometry.fromJson(it.point, mapHelper.spatialReference)
+                if (it.type==1){
+                    graphic.add(Graphic(fromJson,simpleMarkerSymbol))
+                }else if (it.type == 3){
+                    graphic.add(Graphic(fromJson,simpleLineSymbol))
+                }else if (it.type == 4) {
+                    graphic.add(Graphic(fromJson, symbol))
+                }
+            }
+        }
+        overlay.graphics.addAll(graphic)
     }
 
     private fun initListener() {
@@ -149,122 +180,59 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         // 加载地图
         mapHelper.create(ArcMapHelper())
         mapHelper.arcMapHelper.addBaseMapLayer(basemap)
-        val graphicsOverlay = GraphicsOverlay()
-        binding.mapView.graphicsOverlays.add(graphicsOverlay)
+        binding.mapView.graphicsOverlays.add(GraphicsOverlay())
 
         binding.mapView.onTouchListener =
             object : BaseMapOnTouchListener(mapHelper) {
                 override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                    val point = android.graphics.Point(e.x.toInt(), e.y.toInt())
-                    val mapPoint: Point = binding.mapView.screenToLocation(point)
-                    creadBuild(mapPoint, graphicsOverlay)
                     return super.onSingleTapConfirmed(e)
                 }
             }
     }
 
-    //创建一个用于绘制线的储存点list
-    private val linePoints by lazy { ArrayList<Point>() }
-
-    //创建一个用于绘制面的储存点list
-    private val areaPoints by lazy { ArrayList<Point>() }
-
-    fun creadBuild(point: Point, graphicsOverlay: GraphicsOverlay) {
-
-        var graphic: Graphic? = null
-        if (creadBuilding == 0) {
-            return
-        } else if (creadBuilding == DrawHelper.TYPE_POINT) {
-            val simpleMarkerSymbol =
-                SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 15f)
-            //创建Graphic
-            graphic = Graphic(point, simpleMarkerSymbol)
-            //可以给graphic添加一些属性
-            graphic.attributes["value"] = "Graphic0"
-            //添加graphic到 GraphicsOverlay上
-        } else if (creadBuilding == DrawHelper.TYPE_POLYLINE) {
-            linePoints.add(point)
-            if (linePoints.size == 1) {
-                val simpleMarkerSymbol =
-                    SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 15f)
-                graphic = Graphic(point, simpleMarkerSymbol)
-            } else {
-//                graphicsOverlay.graphics.clear()
-                //创建线的路径
-                val polylineBuilder = PolylineBuilder(binding.mapView.spatialReference)
-                //添加触摸的点作为路径
-                polylineBuilder.addPoints(linePoints)
-                //线的样式
-                val simpleLineSymbol =
-                    SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 5f)
-                graphic = Graphic(polylineBuilder.toGeometry(), simpleLineSymbol)
-            }
-
-        } else if (creadBuilding == DrawHelper.TYPE_POLYGON) {
-            areaPoints.add(point)
-            if (areaPoints.size == 1) {
-                val simpleMarkerSymbol =
-                    SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 5f)
-                graphic = Graphic(point, simpleMarkerSymbol)
-            } else if (areaPoints.size == DrawHelper.TYPE_POINT) {
-                val polylineBuilder = PolylineBuilder(binding.mapView.spatialReference)
-                polylineBuilder.addPoints(areaPoints)
-                val simpleLineSymbol =
-                    SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 2f)
-                graphic = Graphic(polylineBuilder.toGeometry(), simpleLineSymbol)
-            } else {
-//                graphicsOverlay.graphics.clear()
-                //创建面路径
-                val polygonBuilder = PolygonBuilder(binding.mapView.spatialReference)
-                polygonBuilder.addPoints(areaPoints)
-                //线的样式
-                val simpleLineSymbol =
-                    SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 2f)
-                val simpleFillSymbol =
-                    SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.YELLOW, simpleLineSymbol)
-                graphic = Graphic(polygonBuilder.toGeometry(), simpleFillSymbol)
-            }
-        }
-        mapHelper.drawHelper.addPoint(point)
-        graphicsOverlay.graphics.add(graphic)
-
-    }
-
     override fun onClick(p0: View) {
         when (p0.id) {
-            R.id.btn_close ->
+            R.id.btn_refresh ->{
+                refreshcollect()
+            }
+            R.id.image_location ->{
+                locationDisplay?.startAsync()
+                initListener()
+            }
+            R.id.image_zhinanzhen ->{
+                binding.mapView.setViewpointRotationAsync(0.0)
+            }
+            R.id.btn_close -> {
                 setview(0, "关闭创建")
+                mapHelper.drawHelper.stopDraw()
+            }
             R.id.btn_dian ->
                 setview(DrawHelper.TYPE_POINT, "创建点")
             R.id.btn_xian ->
                 setview(DrawHelper.TYPE_POLYLINE, "创建线")
             R.id.btn_mian ->
                 setview(DrawHelper.TYPE_POLYGON, "创建面")
-            R.id.tv_storage ->
-                storage()
-            R.id.btn_data ->
-                goActivity()
+            R.id.tv_storage -> {
+                val toJson = mapHelper.drawHelper.result.toJson()
+                var intent: Intent? = Intent(this, KeepDataActivity::class.java)
+                var dataBean = DataBean(creadBuilding, toJson);
+                intent?.putExtra("info", dataBean)
+                startActivityForResult(intent,100)
+                mapHelper.drawHelper.stopDraw()
+            }
+            R.id.btn_data -> {
+                var intent
+                        : Intent
+                ? = Intent(this, AllDataActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 
-    fun storage() {
-        val toJson = mapHelper.drawHelper.result.toJson()
-        var intent: Intent? = Intent(this, KeepDataActivity::class.java)
-        var dataBean = DataBean(creadBuilding, toJson);
-        intent?.putExtra("info", dataBean)
-        startActivity(intent)
-
-    }
-
-    fun goActivity() {
-        var intent
-                : Intent
-        ? = Intent(this, AllDataActivity::class.java)
-        startActivity(intent)
-    }
-
     private var creadBuilding: Int = 0
+
     private fun setview(id: Int, name: String) {
+        mapHelper.drawHelper.stopDraw()
         ToastUtils.showShortToast(mContext, name)
         mapHelper.drawHelper.startDraw(id)
         binding.tvBuilding.setText("正在$name")
@@ -276,6 +244,13 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             binding.tvStorage.visibility = View.VISIBLE
         }
         creadBuilding = id
+    }
+
+    override fun startActivityForResult(intent: Intent?, requestCode: Int) {
+        super.startActivityForResult(intent, requestCode)
+        if (requestCode==100){
+            refreshcollect()
+        }
     }
 
     override fun onResume() {

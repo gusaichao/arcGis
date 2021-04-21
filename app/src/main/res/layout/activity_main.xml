@@ -11,6 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <Button
+        android:id="@+id/btn_refresh"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp"
+        android:background="@drawable/ic_map_tool_bg"
+        android:text="刷新"
+        android:textColor="@color/black"
+        android:textSize="@dimen/sp_20" />
     <TextView
         android:id="@+id/tv_building"
         android:visibility="gone"
